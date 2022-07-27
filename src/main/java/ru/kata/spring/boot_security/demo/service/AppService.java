@@ -21,7 +21,6 @@ import javax.persistence.PersistenceContext;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -81,24 +80,13 @@ public class AppService implements UserDetailsService {
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email);
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username);
 
         if (user == null) {
-            throw new UsernameNotFoundException(String.format("User '%s' not found", email));
+            throw new UsernameNotFoundException(String.format("User '%s' not found", username));
         }
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(), user.getPassword(), user.getAuthorities());
-    }
-
-    public User getUserByEmail(String email) {
-        Optional<User> user = Optional.ofNullable(userRepository.findByEmail(email));
-
-        if (user.isPresent()) {
-            return user.get();
-        } else {
-            throw new UsernameNotFoundException(String.format("User with email '%s' not found", email));
-        }
+        return user;
     }
 
     private static Collection<? extends GrantedAuthority> getAuthorities(User user) {
